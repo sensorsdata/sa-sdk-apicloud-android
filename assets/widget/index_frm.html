@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)file:///Users/yang/Desktop/index_frm.html -->
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width">
+		<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+		<title>WinA</title>
+		<link rel="stylesheet" type="text/css" href="./index_frm_files/api.css">
+		<link rel="stylesheet" type="text/css" href="./index_frm_files/box.css">
+		<script type="text/javascript" src="./index_frm_files/public.js"></script>
+		<style>
+			p {
+				color: #999;
+				padding: 5px;
+			}
+			.clickbtn {
+				background: #f1f1f1;
+				height: 50px;
+				border-bottom: 1px solid #fff;
+				line-height: 50px;
+				text-align: center;
+				color: #323237;
+				margin: 10px;
+			}
+		</style>
+		<script type="text/javascript">
+			var sa = null;
+			apiready = function() {
+				sa = api.require('sensorsAnalyticsAPICloudSDK');
+				//初始化SensorsAnalytiesAPICloudSDK
+				sa.sharedInstance({
+					serverURL : "your server url",
+					configureURL : "your configure url",
+					debugMode : "your debug mode"
+				});
+			}
+			//设置当前用户的loginId（登录ID）
+			function login() {
+				sa.login({
+					loginId : "your loginId"
+				});
+			}
+
+			//track事件
+			function track() {
+				sa.track({
+					event : 'ViewProduct',
+					properties : {
+						ProductID : 123456,
+						ProductCatalog : 'Laptop Computer',
+						IsAddedToFav : false
+					}
+				});
+			}
+
+			//手动flush事件
+			function flush() {
+				sa.flush();
+			}
+		</script>
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="main">
+				<div class="clickbtn" tapmode="active" onclick="login()">
+					login()事件
+				</div>
+				<div class="clickbtn" tapmode="active" onclick="track()">
+					track()事件
+				</div>
+				<div class="clickbtn" tapmode="active" onclick="flush()">
+					flush()事件
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
