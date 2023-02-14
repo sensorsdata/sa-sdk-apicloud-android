@@ -45,6 +45,7 @@ public class SensorsAnalyticsDelegate extends ApplicationDelegate {
         String sa_disableRandomTimeRequestRemoteConfig = null;
         String sa_encrypt = null;
         String sa_disableDataCollect = null;
+        String sa_disableSDK = null;
 
         try {
             //获取配置信息
@@ -60,6 +61,7 @@ public class SensorsAnalyticsDelegate extends ApplicationDelegate {
             sa_disableRandomTimeRequestRemoteConfig = info.getFeatureValue(SA_FEATRURE, "disableRandomTimeRequestRemoteConfig");
             sa_encrypt = info.getFeatureValue(SA_FEATRURE, "encrypt");
             sa_disableDataCollect = info.getFeatureValue(SA_FEATRURE, "disableDataCollect");
+            sa_disableSDK = info.getFeatureValue(SA_FEATRURE, "disableSDK");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,12 +147,16 @@ public class SensorsAnalyticsDelegate extends ApplicationDelegate {
 
         // 开启合规
         if (Boolean.parseBoolean(sa_disableDataCollect)) {
-            configOptions.disableDataCollect();
+//            configOptions.disableDataCollect();
         }
 
         // 开启日志
         if (Boolean.parseBoolean(sa_enableLog)) {
             configOptions.enableLog(true);
+        }
+        // 关闭 SDK
+        if (Boolean.parseBoolean(sa_disableSDK)) {
+            configOptions.disableSDK(true);
         }
 
         Log.i(TAG, "onApplicationCreate");

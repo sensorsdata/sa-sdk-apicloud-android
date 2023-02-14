@@ -1,0 +1,3 @@
+include ':sa-sdk-apicloud-android'
+include ':app'
+rootProject.name = "sa-sdk-apicloud-android"

@@ -1,0 +1,8 @@
+{
+	"modules":[
+		{
+			"name":"sensorsAnalyticsAPICloudSDK",
+			"class":"com.sensorsdata.analytics.SensorsAnalyticsAPICloudSDK"
+		}
+	]
+}

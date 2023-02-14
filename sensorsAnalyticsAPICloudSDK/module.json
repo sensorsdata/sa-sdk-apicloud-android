@@ -1,8 +1,0 @@
-{
-    "name":"sensorsAnalyticsAPICloudSDK",
-    "class":"com.sensorsdata.analytics.SensorsAnalyticsAPICloudSDK"
-},
-{
-    "name":"sa",
-    "class":"com.sensorsdata.analytics.SensorsAnalyticsDelegate"
-}

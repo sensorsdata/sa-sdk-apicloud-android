@@ -1,0 +1,47 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+    //useLibrary 'org.apache.http.legacy'
+    defaultConfig {
+        applicationId project.ANDROID_BUILD_APP_PKG
+        minSdkVersion 14
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+        versionCode Integer.parseInt(project.ANDROID_BUILD_VERSION_CODE)
+        versionName project.ANDROID_BUILD_VERSION_NAME
+    }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
+    aaptOptions {
+        cruncherEnabled false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets{
+        main{
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+repositories{
+    flatDir{
+        dirs 'libs'
+    }
+}
+
+dependencies {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(path: ':sa-sdk-apicloud-android')
+    implementation 'com.sensorsdata.analytics.android:SensorsAnalyticsSDK:6.6.3'
+}

@@ -1,10 +1,16 @@
 package com.sensorsdata.analytics;
 
+import android.app.Activity;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.sensorsdata.analytics.android.sdk.SAConfigOptions;
+import com.sensorsdata.analytics.android.sdk.SALog;
+import com.sensorsdata.analytics.android.sdk.SensorsAnalyticsAutoTrackEventType;
 import com.sensorsdata.analytics.android.sdk.SensorsDataAPI;
 import com.sensorsdata.analytics.android.sdk.SensorsNetworkType;
+import com.sensorsdata.analytics.android.sdk.util.AppInfoUtils;
+import com.sensorsdata.analytics.android.sdk.util.SensorsDataUtils;
 import com.sensorsdata.analytics.property.SAPropertyManager;
 import com.uzmap.pkg.uzcore.UZWebView;
 import com.uzmap.pkg.uzcore.uzmodule.ModuleResult;
@@ -26,7 +32,7 @@ import java.util.Iterator;
 public class SensorsAnalyticsAPICloudSDK extends UZModule {
 
     private static final String TAG = "SA.APICloudSDK";
-    public static final String VERSION = "2.0.0";
+    public static final String VERSION = "2.2.0";
 
     public SensorsAnalyticsAPICloudSDK(UZWebView webView) {
         super(webView);
@@ -35,54 +41,6 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
     @Override
     protected void onClean() {
         super.onClean();
-    }
-
-    /**
-     * Sensors Analytics SDK 初始化。
-     * <p>
-     * <strong>函数</strong><br>
-     * <br>
-     * 该函数映射至 Javascript 中 sa 对象的 sharedInstance 函数，完成 Sensors Analytics SDK 初始化<br>
-     * <br>
-     * <strong>JS Example：</strong><br>
-     * sa = api.require('sensorsAnalyticsAPICloudSDK');
-     * <p>
-     * var argument = { sa_server_url: "【数据接收地址】", debugMode: "【Debug模式】" };
-     * sa.sharedInstance(argument);
-     *
-     * @param sensorsAnalyticsAPICloudSDK (Required) serverURL 用于收集事件的服务地址（类型为String） debugMode
-     * Debug模式（类型为String,有3种模式，分别为"debugOff"或"debugOnly"或"debugAndTrack"）
-     * "debugOff" 关闭 Debug 模式。 "debugOnly" 打开 Debug 模式，校验数据，但不进行数据入库。
-     * "debugAndTrack" 打开 Debug 模式，校验数据，并将数据导入库到 Sensors Analytics 中。
-     * 注意！请不要在正式发布的 App 中使用 "debugOnly" 或 "debugAndTrack" 模式！ 要使用
-     * "debugOff" 这个模式。
-     */
-
-    public void jsmethod_sharedInstance(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
-        try {
-            String sa_server_url = sensorsAnalyticsAPICloudSDK.optString("serverURL");
-            //String sa_configure_url = sensorsAnalyticsAPICloudSDK.optString("configureURL");
-            String sa_debug_mode = sensorsAnalyticsAPICloudSDK.optString("debugMode");
-
-            SensorsDataAPI.DebugMode debugMode = null;
-            // 校验debugMode
-            if ("debugOff".equals(sa_debug_mode)) {
-                debugMode = SensorsDataAPI.DebugMode.DEBUG_OFF;
-            } else if ("debugOnly".equals(sa_debug_mode)) {
-                debugMode = SensorsDataAPI.DebugMode.DEBUG_ONLY;
-            } else if ("debugAndTrack".equals(sa_debug_mode)) {
-                debugMode = SensorsDataAPI.DebugMode.DEBUG_AND_TRACK;
-            } else {
-                Log.i(TAG, "debugMode模式传入错误，取值只能为：debugOff、debugOnly、debugAndTrack，请检查传入的模式");
-                return;
-            }
-
-            SensorsDataAPI.sharedInstance(mContext, // 传入 Context
-                    sa_server_url, // 数据接收的 URL
-                    debugMode); // Debug 模式选项
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -105,7 +63,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
                 Log.i(TAG, "loginId（登录ID)为空");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -132,7 +90,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             }
             SensorsDataAPI.sharedInstance().track(eventName, SAPropertyManager.mergeProperty(properties));
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -158,7 +116,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             JSONObject properties = sensorsAnalyticsAPICloudSDK.optJSONObject("properties");
             SensorsDataAPI.sharedInstance().trackViewScreen(url, properties);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -183,7 +141,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
                 return new ModuleResult(SensorsDataAPI.sharedInstance().trackTimerStart(eventName));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
         return new ModuleResult("");
     }
@@ -210,7 +168,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             }
             SensorsDataAPI.sharedInstance().trackTimerEnd(eventName, SAPropertyManager.mergeProperty(properties));
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -227,7 +185,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             SensorsDataAPI.sharedInstance().clearTrackTimer();
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -244,7 +202,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             SensorsDataAPI.sharedInstance().logout();
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -261,7 +219,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             SensorsDataAPI.sharedInstance().profileDelete();
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -283,7 +241,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             JSONObject properties = sensorsAnalyticsAPICloudSDK.optJSONObject("properties");
             SensorsDataAPI.sharedInstance().trackInstallation("AppInstall", properties);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -303,7 +261,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             JSONObject properties = sensorsAnalyticsAPICloudSDK.optJSONObject("properties");
             SensorsDataAPI.sharedInstance().profileSet(properties);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -323,7 +281,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             JSONObject properties = sensorsAnalyticsAPICloudSDK.optJSONObject("properties");
             SensorsDataAPI.sharedInstance().profileSetOnce(properties);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -356,7 +314,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             }
             SensorsDataAPI.sharedInstance().profileIncrement(hashMap);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -389,7 +347,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             }
             SensorsDataAPI.sharedInstance().profileAppend(property, hashSet);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -414,7 +372,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             }
             SensorsDataAPI.sharedInstance().profileUnset(property);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -437,7 +395,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
                 Log.i(TAG, "identify anonymousId（匿名ID)为空");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -457,7 +415,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             JSONObject properties = sensorsAnalyticsAPICloudSDK.optJSONObject("properties");
             SensorsDataAPI.sharedInstance().registerSuperProperties(properties);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -481,7 +439,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             }
             SensorsDataAPI.sharedInstance().unregisterSuperProperty(property);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -502,7 +460,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             boolean b = sensorsAnalyticsAPICloudSDK.optBoolean("enableLog");
             SensorsDataAPI.sharedInstance().enableLog(b);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -524,7 +482,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
                 return new ModuleResult(SensorsDataAPI.sharedInstance().getAnonymousId());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
         return new ModuleResult("");
     }
@@ -541,7 +499,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             SensorsDataAPI.sharedInstance().flush();
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -557,7 +515,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             SensorsDataAPI.sharedInstance().deleteAll();
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -572,13 +530,14 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
     public void jsmethod_setServerUrl(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
         try {
             String serverUrl = sensorsAnalyticsAPICloudSDK.optString("serverUrl");
+            boolean isRequest = sensorsAnalyticsAPICloudSDK.optBoolean("requestRemoteConfig");
             if (TextUtils.isEmpty(serverUrl)) {
                 Log.i(TAG, "setServerUrl serverUrl 为空，请检查传入值");
                 return;
             }
-            SensorsDataAPI.sharedInstance().setServerUrl(serverUrl);
+            SensorsDataAPI.sharedInstance().setServerUrl(serverUrl, isRequest);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -599,7 +558,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             }
             SensorsDataAPI.sharedInstance().trackTimerPause(event);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -620,7 +579,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             }
             SensorsDataAPI.sharedInstance().trackTimerResume(event);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -638,7 +597,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             String pushId = sensorsAnalyticsAPICloudSDK.optString("pushId");
             SensorsDataAPI.sharedInstance().profilePushId(pushTypeKey, pushId);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -655,7 +614,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             String pushTypeKey = sensorsAnalyticsAPICloudSDK.optString("pushTypeKey");
             SensorsDataAPI.sharedInstance().profileUnsetPushId(pushTypeKey);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -671,7 +630,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             SensorsDataAPI.sharedInstance().clearSuperProperties();
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -687,7 +646,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             return new ModuleResult(SensorsDataAPI.sharedInstance().getSuperProperties());
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
         return new ModuleResult();
     }
@@ -708,7 +667,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             JSONObject properties = sensorsAnalyticsAPICloudSDK.optJSONObject("properties");
             SensorsDataAPI.sharedInstance().itemSet(itemType, itemId, properties);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -727,7 +686,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             String itemId = sensorsAnalyticsAPICloudSDK.optString("itemId");
             SensorsDataAPI.sharedInstance().itemDelete(itemType, itemId);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -743,7 +702,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             return new ModuleResult(SensorsDataAPI.sharedInstance().getPresetProperties());
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
         return new ModuleResult();
     }
@@ -760,7 +719,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             return new ModuleResult(SensorsDataAPI.sharedInstance().getLoginId());
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
         return new ModuleResult();
     }
@@ -777,7 +736,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             return new ModuleResult(SensorsDataAPI.sharedInstance().isAutoTrackEnabled());
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
         return new ModuleResult();
     }
@@ -801,9 +760,9 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
      */
     public void jsmethod_setFlushNetworkPolicy(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
         try {
-            SensorsDataAPI.sharedInstance().setFlushNetworkPolicy(sensorsAnalyticsAPICloudSDK.optInt("networkPolicy",SensorsNetworkType.TYPE_3G | SensorsNetworkType.TYPE_4G | SensorsNetworkType.TYPE_WIFI | SensorsNetworkType.TYPE_5G));
+            SensorsDataAPI.sharedInstance().setFlushNetworkPolicy(sensorsAnalyticsAPICloudSDK.optInt("networkPolicy", SensorsNetworkType.TYPE_3G | SensorsNetworkType.TYPE_4G | SensorsNetworkType.TYPE_WIFI | SensorsNetworkType.TYPE_5G));
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -825,7 +784,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
             JSONObject properties = sensorsAnalyticsAPICloudSDK.optJSONObject("properties");
             SensorsDataAPI.sharedInstance().trackInstallation("$AppInstall", properties);
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -841,7 +800,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             SensorsDataAPI.sharedInstance().enableNetworkRequest(sensorsAnalyticsAPICloudSDK.optBoolean("isRequest", true));
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -857,7 +816,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             return new ModuleResult(SensorsDataAPI.sharedInstance().isNetworkRequestEnable());
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
         return new ModuleResult();
     }
@@ -877,7 +836,7 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             SensorsDataAPI.sharedInstance().setSessionIntervalTime(sensorsAnalyticsAPICloudSDK.optInt("sessionIntervalTime"));
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -892,9 +851,9 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
      */
     public void jsmethod_enableDataCollect(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
         try {
-            SensorsDataAPI.sharedInstance().enableDataCollect();
+            SALog.i(TAG, "enableDataCollect() 方法已删除!请使用延迟初始化方案处理合规问题");
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
     }
 
@@ -913,8 +872,294 @@ public class SensorsAnalyticsAPICloudSDK extends UZModule {
         try {
             return new ModuleResult(SensorsDataAPI.sharedInstance().getSessionIntervalTime());
         } catch (Exception e) {
-            e.printStackTrace();
+            SALog.printStackTrace(e);
         }
         return new ModuleResult();
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 enableSDK 函数。<br>
+     * 开启 SDK
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * sa.enableSDK();
+     */
+    public void jsmethod_enableSDK(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            SensorsDataAPI.enableSDK();
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 disableSDK 函数。<br>
+     * 关闭 SDK
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * sa.disableSDK();
+     */
+    public void jsmethod_disableSDK(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            SensorsDataAPI.disableSDK();
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 getServerUrl 函数。<br>
+     * 获取数据接收地址
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * sa.getServerUrl();
+     */
+    public ModuleResult jsmethod_getServerUrl_sync(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            return new ModuleResult(SensorsDataAPI.sharedInstance().getServerUrl());
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+        return new ModuleResult();
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 loginWithKey 函数。<br>
+     * 登录，设置当前用户的登录 IDKey 和 loginId
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * var argument={loginKey:"your loginIDkey",loginId:"your loginId"};
+     * sa.loginWithKey(argument);
+     */
+    public void jsmethod_loginWithKey(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            String loginIdKey = sensorsAnalyticsAPICloudSDK.optString("key");
+            String loginId = sensorsAnalyticsAPICloudSDK.optString("id");
+            SensorsDataAPI.sharedInstance().loginWithKey(loginIdKey, loginId);
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 getIdentities 函数。<br>
+     * 获取当前的 identities
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * sa.getIdentities();
+     */
+    public ModuleResult jsmethod_getIdentities_sync(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            return new ModuleResult(SensorsDataAPI.sharedInstance().getIdentities());
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+        return new ModuleResult();
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 bind 函数。<br>
+     * 绑定业务 ID
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * var argument={key:"bind key",value:"bind key value"};
+     * sa.bind(argument);
+     */
+    public void jsmethod_bind(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            String key = sensorsAnalyticsAPICloudSDK.optString("key");
+            String value = sensorsAnalyticsAPICloudSDK.optString("value");
+            SensorsDataAPI.sharedInstance().bind(key, value);
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 unbind 函数。<br>
+     * 解绑业务 ID
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * var argument={key:"unbind key",value:"unbind key value"};
+     * sa.unbind(argument);
+     */
+    public void jsmethod_unbind(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            String key = sensorsAnalyticsAPICloudSDK.optString("key");
+            String value = sensorsAnalyticsAPICloudSDK.optString("value");
+            SensorsDataAPI.sharedInstance().unbind(key, value);
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 getAnonymousId 函数。<br>
+     * 获取匿名 ID
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * sa.getAnonymousId();
+     */
+    public ModuleResult jsmethod_getAnonymousId_sync(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            return new ModuleResult(SensorsDataAPI.sharedInstance().getAnonymousId());
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+        return new ModuleResult();
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 resetAnonymousId 函数。<br>
+     * 重置匿名 ID
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * sa.resetAnonymousId();
+     */
+    public void jsmethod_resetAnonymousId(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            SensorsDataAPI.sharedInstance().resetAnonymousId();
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 disableSDK 函数。<br>
+     * 删除事件的计时器
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * var argument={eventName:"your eventName"};
+     * sa.removeTimer(argument);
+     */
+    public void jsmethod_removeTimer(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            String event = sensorsAnalyticsAPICloudSDK.optString("event");
+            SensorsDataAPI.sharedInstance().removeTimer(event);
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 setFlushBulkSize 函数。<br>
+     * 设置本地缓存日志的最大条目数，最小 50 条
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * var argument={flushBulkSize:最大缓存条数};
+     * sa.setFlushBulkSize(argument);
+     */
+    public void jsmethod_setFlushBulkSize(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            int flushBulkSize = sensorsAnalyticsAPICloudSDK.optInt("flushBulkSize");
+            SensorsDataAPI.sharedInstance().setFlushBulkSize(flushBulkSize);
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 getFlushBulkSize 函数。<br>
+     * 返回本地缓存日志的最大条目数
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * sa.getFlushBulkSize();
+     */
+    public ModuleResult jsmethod_getFlushBulkSize_sync(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            return new ModuleResult(SensorsDataAPI.sharedInstance().getFlushBulkSize());
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+        return new ModuleResult();
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 setFlushInterval 函数。<br>
+     * 设置两次数据发送的最小时间间隔，单位毫秒
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * var argument={flushInterval:数据发送间隔};
+     * sa.setFlushInterval(argument);
+     */
+    public void jsmethod_setFlushInterval(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            int flushInterval = sensorsAnalyticsAPICloudSDK.optInt("flushInterval");
+            SensorsDataAPI.sharedInstance().setFlushInterval(flushInterval);
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+    }
+
+    /**
+     * <strong>函数</strong><br>
+     * <br>
+     * 该函数映射至 Javascript 中 sa 对象的 getFlushInterval 函数。<br>
+     * 返回两次数据发送的最小时间间隔
+     * <br>
+     * <strong>JS Example：</strong><br>
+     * sa.getFlushInterval();
+     */
+    public ModuleResult jsmethod_getFlushInterval_sync(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        try {
+            return new ModuleResult(SensorsDataAPI.sharedInstance().getFlushInterval());
+        } catch (Exception e) {
+            SALog.printStackTrace(e);
+        }
+        return new ModuleResult();
+    }
+
+    /**
+     * <strong>SDK 初始化函数</strong><br>
+     * <strong>JS Example：</strong><br>
+     *
+     * @param sensorsAnalyticsAPICloudSDK
+     */
+    public void jsmethod_initSDK(final UZModuleContext sensorsAnalyticsAPICloudSDK) {
+        SAConfigOptions saConfigOptions = null;
+        try {
+            if (sensorsAnalyticsAPICloudSDK != null && sensorsAnalyticsAPICloudSDK.length() > 0) {
+                saConfigOptions = new SAConfigOptions(sensorsAnalyticsAPICloudSDK.optString("server_url"));
+                saConfigOptions.enableLog(sensorsAnalyticsAPICloudSDK.optBoolean("enable_log", false));
+                if (sensorsAnalyticsAPICloudSDK.optBoolean("auto_track", false)) {
+                    saConfigOptions.setAutoTrackEventType(SensorsAnalyticsAutoTrackEventType.APP_START | SensorsAnalyticsAutoTrackEventType.APP_END);
+                }
+                saConfigOptions.setFlushInterval(sensorsAnalyticsAPICloudSDK.optInt("flush_interval", 15000));
+                saConfigOptions.setFlushBulkSize(sensorsAnalyticsAPICloudSDK.optInt("flush_bulkSize", 100));
+                saConfigOptions.enableEncrypt(sensorsAnalyticsAPICloudSDK.optBoolean("encrypt", false));
+            }
+        } catch (Exception e) {
+            SALog.i(TAG, "parse config exception");
+        }
+        if (saConfigOptions == null) {
+            saConfigOptions = new SAConfigOptions("");
+        }
+        SensorsDataAPI.startWithConfigOptions(sensorsAnalyticsAPICloudSDK.getContext(), saConfigOptions);
     }
 }
